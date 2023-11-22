@@ -51,7 +51,7 @@
           'cmake',
           'nodejs',
           'bat',
-      	  'ripgrep',
+          'ripgrep',
           'docker-compose',
           'exa',
           'chezmoi',
@@ -80,7 +80,7 @@
           'yarn',
           'zlib',
           'zsh',
-	      'zsh-autosuggestions',
+      'zsh-autosuggestions',
         ]
         state: present
         update_homebrew: yes
