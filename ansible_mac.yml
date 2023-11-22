@@ -39,6 +39,7 @@
         - slack
         - discord
         - telegram
+        - signal
         - visual-studio-code
         - vlc
         - zoom
