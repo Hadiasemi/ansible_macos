@@ -108,6 +108,7 @@
         dest: /Users/{{ lookup('env', 'USER') }}/.zshrc
         owner: "{{ lookup('env', 'USER') }}"
         force: yes
+
     - name: Add zsh-autosuggestions to .zshrc
       lineinfile:
         path: ~/.zshrc
@@ -120,6 +121,7 @@
       ansible.builtin.file:
         path: "~/.docker/cli-plugins"
         state: directory
+
     - name: Create symbolic link
       ansible.builtin.file:
         src: "/usr/local/opt/docker-compose/bin/docker-compose"
