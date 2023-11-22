@@ -1,0 +1,169 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Install homebrew
+      include_role:
+        name: geerlingguy.mac.homebrew
+
+    - name: Make sure homebrew bin is in path
+      ansible.builtin.lineinfile:
+        path: /etc/paths
+        state: present
+        line: '/opt/homebrew/bin'
+      become: true
+      become_user: root
+
+    - name: 'add custom homebrew repos'
+      community.general.homebrew_tap:
+        name: [
+          adoptopenjdk/openjdk,
+          fishtown-analytics/dbt,
+          heroku/brew,
+          homebrew/cask-versions,
+          thoughtbot/formulae,
+          weaveworks/tap,
+        ]
+
+    - name: Install core packages via brew casks
+      community.general.homebrew_cask:
+        name: "{{ item }}"
+      ignore_errors: yes
+      with_items:
+        - bitwarden
+        - docker
+        - google-chrome
+        - brave-browser
+        - synology-drive
+        - private-internet-access
+        - iterm2
+        - slack
+        - discord
+        - telegram
+        - visual-studio-code
+        - vlc
+        - zoom
+
+    - name: "Install homebrew packages"
+      community.general.homebrew:
+        name: [
+          'go',
+          'rust',
+          'cmake',
+          'nodejs',
+          'bat',
+      	  'ripgrep',
+          'docker-compose',
+          'exa',
+          'chezmoi',
+          'zellij',
+          'starship',
+          'autoconf',
+          'automake',
+          'coreutils',
+          'curl',
+          'wget',
+          'fzf',
+          'gnu-time',
+          'gpg',
+          'htop',
+          'libtool',
+          'libxslt',
+          'libyaml',
+          'openssl' ,
+          'pkg-config',
+          'sqlite3',
+          'tmux',
+          'unzip',
+          'vim',
+          'neovim',
+          'watchman',
+          'yarn',
+          'zlib',
+          'zsh',
+	      'zsh-autosuggestions',
+        ]
+        state: present
+        update_homebrew: yes
+
+
+    - name: Get the path to ZSH
+      become: false
+      local_action: command which zsh
+      register: zsh_path
+
+    - name: "Ensure homebrew zsh is in allowed shells"
+      lineinfile:
+        path: /etc/shells
+        line: "{{ zsh_path.stdout }}"
+      become: true
+
+
+    - name: Set ZSH as the default shell
+      shell: chsh -s $(which zsh) {{ lookup('env', 'USER') }}
+      become: true
+
+    - name: "Create a default ZSH configuration"
+      template:
+        src: templates/.zshrc.j2
+        dest: /Users/{{ lookup('env', 'USER') }}/.zshrc
+        owner: "{{ lookup('env', 'USER') }}"
+        force: yes
+    - name: Add zsh-autosuggestions to .zshrc
+      lineinfile:
+        path: ~/.zshrc
+        line: 'source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh'
+    
+    - name: Setup my dotfileas
+      shell: chezmoi init --apply Hadiasemi
+
+    - name: Create directory
+      ansible.builtin.file:
+        path: "~/.docker/cli-plugins"
+        state: directory
+    - name: Create symbolic link
+      ansible.builtin.file:
+        src: "/usr/local/opt/docker-compose/bin/docker-compose"
+        dest: "~/.docker/cli-plugins/docker-compose"
+        state: link
+
+
+        
+   #  - name: Create a default VSCode configuration
+   #    template:
+   #      src: templates/vscode-settings.json.j2
+   #      dest: /Users/{{ lookup('env', 'USER') }}/Library/Application Support/Code/User/settings.json
+   #      owner: "{{ lookup('env', 'USER') }}"
+   #      force: yes
+
+   #  - name: Create a default VSCode keuybinding configuration
+   #    template:
+   #      src: templates/vscode-keybindings.json.j2
+   #      dest: /Users/{{ lookup('env', 'USER') }}/Library/Application Support/Code/User/keybindings.json
+   #      owner: "{{ lookup('env', 'USER') }}"
+   #      force: yes
+
+   #  # Add something which ensures path is set here
+   #  - name: Install VSCode extensions
+   #    shell: code --install-extension {{ item }}
+   #    with_items:
+   #      - apollographql.vscode-apollo
+   #      - bradlc.vscode-tailwindcss
+   #      - castwide.solargraph
+   #      - clinyong.vscode-css-modules
+   #      - eamodio.gitlens
+   #      - jakebecker.elixir-ls
+   #      - kaiwood.endwise
+   #      - karunamurti.haml
+   #      - ms-vscode-remote.vscode-remote-extensionpack
+   #      - ms-vscode.vscode-typescript-tslint-plugin
+   #      - msjsdiag.debugger-for-chrome
+   #      - rebornix.ruby
+   #      - richie5um2.vscode-sort-json
+   #      - Tyriar.sort-lines
+   #      - vscodevim.vim
+   #      - wholroyd.jinja
+   #      - wingrunr21.vscode-ruby
+   #      - xabikos.javascriptsnippets
+   #      - streetsidesoftware.code-spell-checker
+   #      - fabiospampinato.vscode-todo-plus
+
