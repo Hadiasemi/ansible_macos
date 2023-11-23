@@ -4,7 +4,6 @@
     - name: Install homebrew
       include_role:
         name: geerlingguy.mac.homebrew
-
     - name: Make sure homebrew bin is in path
       ansible.builtin.lineinfile:
         path: /etc/paths
@@ -129,6 +128,9 @@
         dest: "~/.docker/cli-plugins/docker-compose"
         state: link
 
+    - name: Install Meslo font
+      shell: "cp ./MesloLGS_NF_Regular.ttf /Library/Fonts/"
+      tags: ['font'] 
 
         
    #  - name: Create a default VSCode configuration
